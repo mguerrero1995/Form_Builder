@@ -8,30 +8,25 @@ from tkinter import ttk
 window = tk.Tk()
 window.geometry("800x800")
 
-
-# # Create a grid layout with empty labels to define the size of the grid
-# for row in range(NUM_ROWS):
-#     for col in range(NUM_COLS):
-#         label = tk.Label(window, text="", width=4, height=2, bd=1, relief=tk.SOLID,
-#                          highlightthickness=1, highlightbackground="black")
-#         label.grid(row=row, column=col, padx=1, pady=1)
-#         # if row < 2 or row > 11 or col < 2 or col > 11:
-#         #     # Make the empty cells invisible
-#         #     label.grid_remove()
-
-
-
 class DraggableWidget:
     next_id = 1
 
-    def __init__(self, name, type, initial_row, initial_col):
+    def __init__(self, name, type, widget_width=10, widget_height=5, initial_x=0, initial_y=0):
         self.id = DraggableWidget.next_id
         self.name = name
-        self.initial_row = initial_row
-        self.initial_col = initial_col
+        # self.initial_row = initial_row
+        # self.initial_col = initial_col
         # self.width = 100
         # self.height = 30
+        self.initial_x = initial_x
+        self.initial_y = initial_y
+        self.widget_width = widget_width
+        self.widget_height = widget_height
         type = type.upper()
+        self.location = {"top_left": [self.initial_x, self.initial_y], 
+                        "top_right": [self.initial_x + self.widget_width],
+                        "bottom_left": [self.initial_x, self.initial_y + 100],
+                        "bottom_right": [self.initial_x + self.widget_width, self.initial_y + self.widget_height]}
 
         if type == "LABEL":
             self.field = tk.Label(window, text=self.name, bg="red", # width=4, height=2,
@@ -48,7 +43,8 @@ class DraggableWidget:
             raise ValueError("Invalid field type")
 
         # Place the field in it's inital location
-        self.field.grid(row=self.initial_row, column=self.initial_col, padx=1, pady=1)
+        # self.field.place(row=self.initial_row, column=self.initial_col, padx=1, pady=1)
+        self.field.pack(padx=1, pady=1)
 
         self.bind_drag()
         DraggableWidget.next_id += 1
@@ -70,10 +66,16 @@ class DraggableWidget:
         # Calculate the new position of the label based on the mouse movement
         x = widget.winfo_x() - widget.startX + event.x
         y = widget.winfo_y() - widget.startY + event.y
+
+        self.location["upper_left"] = [x, y]
+        self.location["upper_right"] = [x + self.widget_width, y]
+        self.location["bottom_left"] = [x, y + self.widget_height]
+        self.location["bottom_right"] = [x + self.widget_width, y + self.widget_height]
         
         # Set the position of the label in the window
         widget.place(x=x, y=y)
-
+        # Add print here
+        
     def on_button_release(self, event):
         # Snap the label to the nearest grid position
         widget = event.widget
@@ -120,11 +122,11 @@ class DraggableWidget:
         
         
 
-label1 = DraggableWidget("Label 1", "label", 0, 0)
-label2 = DraggableWidget("Label 2", "label", 0, 1)
+label1 = DraggableWidget(name="Label 1", type="label", initial_x=0, initial_y=0)
+label2 = DraggableWidget(name="Label 2", type="label", initial_x=0, initial_y=1)
 
-button1 = DraggableWidget("Button 1", "button", 0, 2)
-button2 = DraggableWidget("Button 2", "button", 0, 3)
+button1 = DraggableWidget(name="Button 1", type="button", initial_x=0, initial_y=2)
+button2 = DraggableWidget(name="Button 2", type="button", initial_x=0, initial_y=3)
 
 # Create a label to move around the grid
 # label1 = DraggableWidget(window, text="Label 1", bg="red", width=4, height=2,
